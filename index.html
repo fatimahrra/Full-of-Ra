@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>a little gift</title>
+    <!-- Font Keren -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- Library Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --secondary: #c9184a;
+            --bg: #1a1a2e;
+            --glass: rgba(255, 255, 255, 0.1);
+            --text: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at 50% 50%, #2a2a4e 0%, #1a1a2e 100%);
+        }
+
+        /* Container Utama */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            min-height: 80vh;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            transition: all 0.5s ease;
+        }
+
+        /* Halaman Sections */
+        .page {
+            display: none;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(255, 77, 109, 0.5);
+        }
+
+        p {
+            line-height: 1.6;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Tombol Navigasi */
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Gallery Styles */
+        .gallery-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            margin: 10px 0;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .caption {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Love Button Game Styles */
+        .love-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .love-btn {
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .love-btn:hover {
+            background: var(--primary);
+        }
+
+        /* Confetti Section */
+        .celebration-text {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Music Control */
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--glass);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            border: 1px solid var(--primary);
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            h1 { font-size: 2.2rem; }
+            .container { width: 95%; padding: 1.5rem; }
+            .love-buttons { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio Player dengan Autoplay Attempt -->
+    <audio id="bgMusic" loop preload="auto">
+        <source src="your-song-parokya-ni-edgar-jenzen-x-liam-x-dave-x-fern-x-carl-cover-yjvdvom_tlkoEkAK.mp3" type="audio/mpeg">
+        Browser kamu tidak mendukung audio.
+    </audio>
+    
+    <div class="music-control" id="musicControl" onclick="toggleMusic()">🎵</div>
+
+    <div class="container">
+        
+        <!-- HALAMAN 0: PEMBUKA (WAJIB KLIK) -->
+        <div class="page active" id="page0">
+            <h1>Hallow, my engineering boy! </h1>
+            <br>
+            <p>I made this little gift just for you. I hope it makes you smile and feel special.</p>
+            <p>- from your engineering girl ❤️</p>
+            <button class="btn" onclick="startAnniversary()">click here to see your special gift 🤍</button>
+        </div>
+
+        <!-- HALAMAN 1: UCAPAN -->
+        <div class="page" id="page1">
+            <h1>Happy 1st Monthversary</h1>
+            <p>You came into my life, perhaps carrying many wounds, doubts, and fears, yet still hoping to find happiness with me. Even with all those noisy thoughts in your mind, even with the uncertainty you felt about yourself, you still chose to step closer to me and said, 
+            </p>
+            <p><b>“I will do my best to be a good partner for you.”</b><br> - Sae, February 9, 2026 </p>
+
+            <p>Such beautiful words, spoken so calmly, to someone like me who always thought, 'It feels impossible.'</p>
+            <p>I never imagined that I would meet you.
+            In the middle of silence, loneliness, and empty spaces, you came into my life as if bringing warmth, joy, and happiness in the most gentle way.</p>
+
+
+            <p>And I will do the same. I will try to understand you, to support you, and to believe wholeheartedly that when you love me, you will never have to face the same wounds from stories of the past again.</p>
+
+            <p>Let's grow together, okay?<br>
+            Learning to understand each other, learning to care for each other, and building a love that feels calm and safe — a love that brings happiness, not disappointment.</p>
+
+            <p>I truly look forward to the more beautiful days ahead of us. <br>
+            I look forward to the moments when you make me happy, and when I make you happy in return. <br>
+            I look forward to realizing how lucky we are that God brought us together yesterday, today, tomorrow, and for all the days to come.</p>
+            <button class="btn" onclick="nextPage(2)">Let's continue our happiness 🤍</button>
+        </div>
+
+        <!-- HALAMAN 2: GALERI FOTO -->
+        <div class="page" id="page2">
+            <h1>Our Moments ✨</h1>
+            <div class="gallery-container">
+                <div class="slide active">
+                    <img src="media/foto1.jpeg" alt="Foto 1">
+                    <div class="caption">Our first meaningful meeting happened because of work, at the library (Tuesday, December 23, 2025)</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto2.jpeg" alt="Foto 2">
+                    <div class="caption">We met again at a coffee shop in South Jakarta, spending time talking and getting to know each other more closely (Saturday, January 24, 2026)</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto3.jpeg" alt="Foto 3">
+                    <div class="caption">On the same day, we continued our little adventure together at Ragunan. It was such a fun day (Saturday, January 24, 2026)</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto4.jpeg" alt="Foto 4">
+                    <div class="caption">We met again and spent the day playing and laughing together. It was so much fun! (Tuesday, February 3, 2026)</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto5.jpeg" alt="Foto 5">
+                    <div class="caption">You said something very special and comforting to me (Monday, February 9, 2026). You chose that day as the day our relationship began, because it reminds you of your birthday. That was honestly so cute.</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto6.jpeg" alt="Foto 6">
+                    <div class="caption">The first time we met again as a couple (Wednesday, February 11, 2026)</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto7.jpeg" alt="Foto 7">
+                    <div class="caption">You didn’t want to sit in the corner because the roof was leaking. Such attention to detail, my engineering boy!</div>
+                </div>
+                <div class="slide">
+                    <img src="media/foto8.jpeg" alt="Foto 8">
+                    <div class="caption">We also went shopping together. It was sooo fun!</div>
+                </div>
+            </div>
+            <button class="btn" onclick="nextPage(3)">continue our happiness 🤍</button>
+        </div>
+
+        <!-- HALAMAN 3: GAME CINTA -->
+        <div class="page" id="page3">
+            <h1>I Love You ❤️</h1>
+            
+            <div class="love-buttons">
+                <button class="love-btn" id="btnYes" onclick="handleYes()">I love you more ❤️</button>
+                <button class="love-btn" id="btnNo" onclick="handleNo()">I love you too</button>
+            </div>
+        </div>
+
+        <!-- HALAMAN 4: PERAYAAN -->
+        <div class="page" id="page4">
+            <h1>Thank you for all the beautiful moments we have shared together!</h1>
+            <p>
+                Thank you for loving me so sincerely.
+                You are the point in my life where I found the courage to believe again.
+            </p>
+            <div class="celebration-text">Happy 1st Monthversary, my engineering boy! ❤️</div>
+        </div>
+
+    </div>
+
+    <script>
+        // Navigasi Halaman
+        function nextPage(pageNum) {
+            // Sembunyikan semua halaman
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Tampilkan halaman tujuan
+            document.getElementById('page' + pageNum).classList.add('active');
+
+            // Jika masuk ke halaman galeri, mulai slideshow
+            if(pageNum === 2) {
+                startSlideshow();
+            }
+        }
+
+        // Slideshow Foto
+        let slideIndex = 0;
+        function startSlideshow() {
+            const slides = document.querySelectorAll('.slide');
+            if(slides.length > 0) {
+                slides[slideIndex].classList.add('active');
+                setInterval(() => {
+                    slides[slideIndex].classList.remove('active');
+                    slideIndex = (slideIndex + 1) % slides.length;
+                    slides[slideIndex].classList.add('active');
+                }, 3000); // Ganti foto setiap 3 detik
+            }
+        }
+
+        // Logika Tombol Cinta
+        let yesText = "I love you more";
+        const yesBtn = document.getElementById('btnYes');
+        const noBtn = document.getElementById('btnNo');
+        
+        const phrases = [
+            "I love you to the moon ❤️",
+            "I love you to the moon and back ❤️",
+            "I love you more than anything ❤️",
+            "I love you more than life ❤️",
+            "I love you forever & always ❤️",
+            "I love you more ❤️"
+        ];
+        let phraseIndex = 0;
+
+        function handleNo() {
+            // Efek mengecilkan tombol No
+            let currentSize = parseFloat(window.getComputedStyle(noBtn).fontSize);
+            let newSize = currentSize - 2;
+            
+            if (newSize < 10) newSize = 10; // Batas minimum
+
+            noBtn.style.fontSize = newSize + 'px';
+            noBtn.style.padding = (parseFloat(window.getComputedStyle(noBtn).padding) - 2) + 'px';
+            
+            // Ubah teks pertanyaan
+            const questions = ["Are you sure?", "Are you really sure?", "Think again...", "Are you 100% sure?", "Last chance?"];
+            noBtn.innerText = questions[phraseIndex % questions.length];
+            phraseIndex++;
+
+            // Ubah teks tombol Yes
+            yesBtn.innerText = phrases[phraseIndex % phrases.length];
+        }
+
+        function handleYes() {
+            // Pindah ke halaman terakhir
+            nextPage(4);
+            // Trigger Confetti
+            triggerConfetti();
+        }
+
+        // Efek Confetti
+        function triggerConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                // Confetti dari kiri dan kanan
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        }
+
+        // Kontrol Musik dengan Autoplay
+        const music = document.getElementById('bgMusic');
+        let isPlaying = false;
+        const musicControl = document.getElementById('musicControl');
+
+        // Fungsi untuk memulai anniversary (dipanggil saat user klik tombol)
+        function startAnniversary() {
+            // Play music
+            music.volume = 0.5; // Set volume 50%
+            music.play().then(() => {
+                isPlaying = true;
+                updateMusicIcon();
+                musicControl.style.display = 'block'; // Tampilkan kontrol musik
+            }).catch(error => {
+                console.log("Autoplay blocked, showing manual control");
+                musicControl.style.display = 'block';
+            });
+            
+            // Hide page 0, show page 1
+            document.getElementById('page0').classList.remove('active');
+            document.getElementById('page1').classList.add('active');
+        }
+
+        // Fungsi untuk toggle manual 
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                isPlaying = false;
+                updateMusicIcon();
+            } else {
+                music.play().then(() => {
+                    isPlaying = true;
+                    updateMusicIcon();
+                }).catch(e => console.log("Audio play failed"));
+            }
+        }
+
+        function updateMusicIcon() {
+            if (isPlaying) {
+                musicControl.innerText = "⏸️";
+            } else {
+                musicControl.innerText = "🎵";
+            }
+        }
+
+        // Fallback: Jika user klik di mana saja setelah load
+        document.body.addEventListener('click', function() {
+            if (!isPlaying && musicControl.style.display === 'block') {
+                music.play().then(() => {
+                    isPlaying = true;
+                    updateMusicIcon();
+                }).catch(e => console.log("Audio play failed"));
+            }
+        }, { once: true });
+
+    </script>
+</body>
+</html>
